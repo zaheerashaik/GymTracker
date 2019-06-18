@@ -1,0 +1,35 @@
+gym_jrnl = open(f'{PATH}gym_jrnl.txt', "r")
+df1 = pd.DataFrame()
+row = 0
+cat_dict = {'a': 'Abs', 'b': 'Biceps', 'cr': 'Cardio', 'c': 'Chest',
+            's': 'Shoulder', 't': 'Triceps', 'l': 'Legs', 'w': 'Back', 'co': 'core'}
+#read lines in text file
+for line in gym_jrnl:
+    if not line.strip(): #for skipping blank lines
+        continue
+    else:
+        x = line
+        z = re.search(r"[\d]{1,2}/[\d]{1,2}", x)
+
+        if (z):
+            #date = dt.datetime.strptime(x, "%m/%d")
+            f = x.rstrip()
+            f = f+'/2019'
+            df1.loc[row,'date'] = f
+        else:
+            m = x.split()
+            n = m[0].split('.')
+            if len(m)>2:
+                df1.loc[row, "Category"] = cat_dict[n[0]]
+                df1.loc[row,"Exercise"] = n[1]
+                df1.loc[row, "Val"] = m[1]
+                df1.loc[row, "Calories"] = m[2]
+            else:
+                df1.loc[row, "Category"] = cat_dict[n[0]]
+                df1.loc[row,"Exercise"] = n[1]
+                df1.loc[row, "Val"] = m[1]
+            row +=1
+df1.date.fillna(method = 'ffill', inplace=True)
+df1['Val'] = df1.Val.astype(int)
+df1['date']= pd.to_datetime(df1['date'],format ='%m/%d/%Y')
+df1.to_csv(f'{PATH}gym_log.csv')
